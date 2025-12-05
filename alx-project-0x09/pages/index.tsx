@@ -8,9 +8,21 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleGenerateImage = async () => {
-    console.log("Generating Images");
-    console.log(process.env.next_PUBLIC_API_URL);
- 
+    setIsLoading(true);
+    const resp = await fetch('/api/generate-image',{
+      method: 'POST',
+      body: JSON.stringify({
+        prompt
+      }),headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    if(!resp.ok){
+      setIsLoading(false);
+      return;
+    }
+    const data = await resp.json();
+    setIsLoading(false);
 };
 
 return(
@@ -21,8 +33,8 @@ return(
       <div>
         <input type="text" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Enter your prompt here..." className="w-full p-3 border-gray-600 rounded-lg mb-4 text-gray-500"/>
         <button onClick={handleGenerateImage} className="w-full p-3 bg-linear-to-r from bg-indigo-600 to-red-600 text-white rounded-lg hover:bg-blue-700  font-semibold hover:scale-103 active:scale-100 transition duration-300"> 
-          {/* {isLoading ? 'Loading...': Generate Image} */}
-          Generate Image</button>
+          {isLoading ? 'Loading...': 'Generate Image'}
+       </button>
       </div>
 
       {imageUrl && <ImageCard action={() => setImageUrl(imageUrl)} imageUrl={imageUrl} prompt={prompt}/>}
